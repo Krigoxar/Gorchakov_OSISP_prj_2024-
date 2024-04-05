@@ -15,6 +15,8 @@
 	#include <errno.h>
 	#include <fcntl.h>
 	#include <unistd.h>
+	#include <cstring>
+	#include <cmath>
 	//typedef void* receiveBufer_t;
 	typedef int SOCKET;
 	const int NO_ERROR = 0;

@@ -77,6 +77,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
+find_package(SDL2 REQUIRED)
+
 ###############
 ##  Project  ##
 ###############
@@ -92,14 +94,22 @@ find_lto(CXX)
 
 # Always list the source files explicitly, including headers so that they are listed in the IDE
 # If you need to use files based on a variable value, use target_sources
-add_executable(HOD source/main.cpp)
+add_executable(HOD 
+include/Engine.h include/GameObject.h include/GameObjectRegistry.h include/InputAction.h include/InputState.h include/MemoryBitStream.h include/Mouse.h include/Move.h include/MoveList.h include/NetworkManager.h include/ReplicationCommand.h include/RoboCat.h include/RoboCatPCH.h include/RoboCatShared.h include/RoboMath.h include/ScoreBoardManager.h include/SocketAddress.h include/SocketAddressFactory.h include/SocketUtil.h include/StringUtils.h include/TCPSocket.h include/Timing.h include/UDPSocket.h include/WeightedTimedMovingAverage.h include/World.h include/Yarn.h source/additional-sourcefile.cpp source/Engine.cpp source/GameObject.cpp source/GameObjectRegistry.cpp source/InputState.cpp source/main.cpp source/MemoryBitStream.cpp source/Mouse.cpp source/Move.cpp source/MoveList.cpp source/NetworkManager.cpp source/RoboCat.cpp source/RoboCatPCH.cpp source/RoboMath.cpp source/ScoreBoardManager.cpp source/SocketAddress.cpp source/SocketAddressFactory.cpp source/SocketUtil.cpp source/StringUtils.cpp source/TCPSocket.cpp source/Timing.cpp source/UDPSocket.cpp source/World.cpp source/Yarn.cpp)
+
+target_compile_options(HOD PRIVATE -Wno-reorder)
+target_compile_options(HOD PRIVATE -Wno-multichar)
+
+target_include_directories(HOD
+    PRIVATE 
+        include ${SDL2_INCLUDE_DIRS})
 
 target_link_libraries(HOD
     #PUBLIC # Useful for libraries, see https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html for more details about transitive usage requirements.
         #libraries/targets to link when linking this library
         #this will automatically setup the needed flags and dependencies when linking against this target
     PRIVATE # The following libraries are only linked for this target, and its flags/dependencies will not be used when linking against this target
-        general fmt::fmt spdlog::spdlog # It is possible to link some libraries for debug or optimized builds only
+        general fmt::fmt spdlog::spdlog ${SDL2_LIBRARIES}# It is possible to link some libraries for debug or optimized builds only
         #debug DEBUGLIBS
         #optimized RELEASELIBS
 )

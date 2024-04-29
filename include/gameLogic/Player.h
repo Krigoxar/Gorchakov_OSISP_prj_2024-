@@ -12,6 +12,9 @@ public:
     string getName() const;
     Color getColor() const;
     vector<Move> getMoveHistory() const;
+    void setMoveHistory(vector<Move> history){
+        moveHistory=history;
+    };
     void addMoveToHistory(const Move& move);
     bool operator==(const Player& other) const;
     void initializePlayer();

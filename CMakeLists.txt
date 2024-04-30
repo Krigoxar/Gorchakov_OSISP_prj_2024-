@@ -21,7 +21,7 @@ endif()
 # Put the project early since modules might need to detect the compiler.
 # More information https://cmake.org/cmake/help/latest/command/project.html
 project(
-    "BoilerPlate" # This will exposed as the variable PROJECT_NAME.
+    "HOD" # This will exposed as the variable PROJECT_NAME.
     VERSION 0.1.0 # Used for installation and defines variables PROJECT_VERSION_MAJOR, PROJECT_VERSION_MINOR, PROJECT_VERSION_PATCH, and PROJECT_VERSION_TWEAK.
     LANGUAGES C CXX # Used to determine the languages to use based on file extensions
 )
@@ -77,6 +77,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
+find_package(SDL2 REQUIRED)
+
 ###############
 ##  Project  ##
 ###############
@@ -87,47 +89,55 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 find_lto(CXX)
 
 #==========================#
-#  BoilerPlate executable  #
+#  HOD executable  #
 #==========================#
 
 # Always list the source files explicitly, including headers so that they are listed in the IDE
 # If you need to use files based on a variable value, use target_sources
-add_executable(BoilerPlate source/main.cpp)
+add_executable(HOD 
+include/Engine.h include/GameObject.h include/GameObjectRegistry.h include/InputAction.h include/InputState.h include/MemoryBitStream.h include/Mouse.h include/Move.h include/MoveList.h include/NetworkManager.h include/ReplicationCommand.h include/RoboCat.h include/RoboCatPCH.h include/RoboCatShared.h include/RoboMath.h include/ScoreBoardManager.h include/SocketAddress.h include/SocketAddressFactory.h include/SocketUtil.h include/StringUtils.h include/TCPSocket.h include/Timing.h include/UDPSocket.h include/WeightedTimedMovingAverage.h include/World.h include/Yarn.h source/additional-sourcefile.cpp source/Engine.cpp source/GameObject.cpp source/GameObjectRegistry.cpp source/InputState.cpp source/main.cpp source/MemoryBitStream.cpp source/Mouse.cpp source/Move.cpp source/MoveList.cpp source/NetworkManager.cpp source/RoboCat.cpp source/RoboCatPCH.cpp source/RoboMath.cpp source/ScoreBoardManager.cpp source/SocketAddress.cpp source/SocketAddressFactory.cpp source/SocketUtil.cpp source/StringUtils.cpp source/TCPSocket.cpp source/Timing.cpp source/UDPSocket.cpp source/World.cpp source/Yarn.cpp)
 
-target_link_libraries(BoilerPlate
+target_compile_options(HOD PRIVATE -Wno-reorder)
+target_compile_options(HOD PRIVATE -Wno-multichar)
+
+target_include_directories(HOD
+    PRIVATE 
+        include ${SDL2_INCLUDE_DIRS})
+
+target_link_libraries(HOD
     #PUBLIC # Useful for libraries, see https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html for more details about transitive usage requirements.
         #libraries/targets to link when linking this library
         #this will automatically setup the needed flags and dependencies when linking against this target
     PRIVATE # The following libraries are only linked for this target, and its flags/dependencies will not be used when linking against this target
-        general fmt::fmt spdlog::spdlog # It is possible to link some libraries for debug or optimized builds only
+        general fmt::fmt spdlog::spdlog ${SDL2_LIBRARIES}# It is possible to link some libraries for debug or optimized builds only
         #debug DEBUGLIBS
         #optimized RELEASELIBS
 )
 
 # If you need platform specific files to be compiled and do not want to add a new target for this,
 # you can use target_sources instead. Note that configuration-dependent sources are not supported yet (see https://gitlab.kitware.com/cmake/cmake/issues/18233)
-target_sources(BoilerPlate
+target_sources(HOD
     PRIVATE
       $<$<PLATFORM_ID:Windows>:source/windows-only.cpp> # Use of generator expressions https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html
 )
 if(${PROJECT_NAME}_USE_ADDITIONAL_SOURCEFILE)
-    target_sources(BoilerPlate PRIVATE source/additional-sourcefile.cpp)
+    target_sources(HOD PRIVATE source/additional-sourcefile.cpp)
     # You can add defines if needed. PRIVATE means it will only be defined for this target. (see transitive usage)
-    target_compile_definitions(BoilerPlate PRIVATE HAS_ADDITIONAL_SOURCEFILE)
+    target_compile_definitions(HOD PRIVATE HAS_ADDITIONAL_SOURCEFILE)
 endif()
 
 
 # Require c++14, this is better than setting CMAKE_CXX_STANDARD since it won't pollute other targets
 # note : cxx_std_* features were added in CMake 3.8.2
-target_compile_features(BoilerPlate PRIVATE cxx_std_14)
+target_compile_features(HOD PRIVATE cxx_std_14)
 
 # CMake scripts extensions
-target_set_warnings(BoilerPlate ENABLE ALL AS_ERROR ALL DISABLE Annoying) # Helper that can set default warning flags for you
-target_enable_lto(BoilerPlate optimized) #enable lto if available for non-debug configurations
-copy_dlls_for_debug(BoilerPlate "" "") # Copy dependencies next to the executable (DLLs for example)
+target_set_warnings(HOD ENABLE ALL AS_ERROR ALL DISABLE Annoying) # Helper that can set default warning flags for you
+target_enable_lto(HOD optimized) #enable lto if available for non-debug configurations
+copy_dlls_for_debug(HOD "" "") # Copy dependencies next to the executable (DLLs for example)
 
 # Setup our project as the startup project for Visual so that people don't need to do it manually
-set_directory_properties(PROPERTIES VS_STARTUP_PROJECT BoilerPlate)
+set_directory_properties(PROPERTIES VS_STARTUP_PROJECT HOD)
 
 #===============#
 #  Foo library  #
@@ -136,33 +146,37 @@ set_directory_properties(PROPERTIES VS_STARTUP_PROJECT BoilerPlate)
 # Usually libraries are listed before executables, but in this case we only use it for the tests
 # Note that we use both the include and source folders for headers, based on wether they are part of the public API or not.
 # For more information about this rationale, see https://github.com/vector-of-bool/pitchfork
-add_library(bp_foo
-    source/foo.cpp
-    source/foo-impl.h
-    include/foo.h
-)
+#add_library(bp_foo
+#    source/foo.cpp
+#    source/foo-impl.h
+#    include/foo.h
+#)
 
 # Since we put the public interface headers in the include directory, we need to tell the compiler so that we can #include <file>.
-target_include_directories(bp_foo
-    PUBLIC # The folder must be used in the include path for any target using this library
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> # Due to the way installation work, we only want this path set when building, not once installed
-)
+#target_include_directories(bp_foo
+#    PUBLIC # The folder must be used in the include path for any target using this library
+#        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> # Due to the way installation work, we only want this path set when building, not once installed
+#)
 
 # The following properties are useful when you want to have an 'install' target
-set_target_properties(${PROJECT_NAME} 
-    PROPERTIES 
-        PUBLIC_HEADER ${CMAKE_CURRENT_LIST_DIR}/include/foo.h # Headers listed here will automatically be copied when installing. Note that directories hierarchy is not preserved.
-        DEBUG_POSTFIX d # We had a postfix so that we can install debug and release libraries side by side (Windows way)
-)
+
+#set_target_properties(${PROJECT_NAME} 
+#    PROPERTIES 
+#        PUBLIC_HEADER ${CMAKE_CURRENT_LIST_DIR}/include/foo.h # Headers listed here will automatically be copied when installing. Note that directories hierarchy is not preserved.
+#        DEBUG_POSTFIX d # We had a postfix so that we can install debug and release libraries side by side (Windows way)
+#)
 
 # We tell CMake what are the target dependencies
-target_link_libraries(bp_foo
-    PRIVATE # fmt is only needed to build, not to use this library
-        fmt::fmt # Use the namespaced version to make sure we have the target and not the static lib only (which doesn't have transitive properties)
-)
+
+#target_link_libraries(bp_foo
+#    PRIVATE # fmt is only needed to build, not to use this library
+#        fmt::fmt # Use the namespaced version to make sure we have the target and not the static lib only (which doesn't have transitive properties)
+#)
+
 # Give a 'namespaced' name to libraries targets, as it can't be mistaken with system libraries
 # Use the same namespace as the one from the install command. This is only really needed if you want to support usage of your library through add_subdirectory.
-add_library(${PROJECT_NAME}::foo ALIAS bp_foo)
+
+#add_library(${PROJECT_NAME}::foo ALIAS bp_foo)
 
 #===========#
 #   Tests   #
@@ -246,15 +260,15 @@ if(${PROJECT_NAME}_INSTALL)
     # It will then need a call to `install(EXPORT)`
     install(
         TARGETS 
-          BoilerPlate # We can install executables
-          bp_foo      # ... and libraries
+          HOD # We can install executables
+          #bp_foo      # ... and libraries
           fmt         # If we compiled other libraries using add_subdirectory instead of find_package (target is not exported), we'll need to export them too (they are needed for linking) your library.
         EXPORT ${PROJECT_NAME}_Targets
     # Following is only needed pre-cmake3.14
     #    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     #    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     #    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-		# Note PUBLIC_HEADER DESTINATION is necessary only if you provide RUNTIME/LIBRARY/ARCHIVE otherwise CMake will map it to the INCLUDES destination (CMake will warn you with "INSTALL TARGETS - target BoilerPlate has PUBLIC_HEADER files but no PUBLIC_HEADER DESTINATION." )
+		# Note PUBLIC_HEADER DESTINATION is necessary only if you provide RUNTIME/LIBRARY/ARCHIVE otherwise CMake will map it to the INCLUDES destination (CMake will warn you with "INSTALL TARGETS - target HOD has PUBLIC_HEADER files but no PUBLIC_HEADER DESTINATION." )
 	#	PUBLIC_HEADER DESTINATION  ${CMAKE_INSTALL_INCLUDEDIR} 
     # If you want to split between runtime and dev for examples, take a look at COMPONENT, NAMELINK_COMPONENT etc
     # More info in Craig Scott's talk "Deep CMake for library authors" https://www.youtube.com/watch?v=m0DwB4OvDXk

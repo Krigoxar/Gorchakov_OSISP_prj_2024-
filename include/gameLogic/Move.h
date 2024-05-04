@@ -18,6 +18,16 @@ public:
     int getEndY() const {
         return endY;
     }
+    
+    std::string toString() const {
+        std::string moveString = "";
+        moveString += static_cast<char>('a' + startX);
+        moveString += std::to_string(startY + 1);
+        moveString += "-";
+        moveString += static_cast<char>('a' + endX);
+        moveString += std::to_string(endY + 1);
+        return moveString;
+    }
 
 private:
     int startX;

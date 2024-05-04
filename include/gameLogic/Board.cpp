@@ -1,5 +1,5 @@
-
 #include "Board.h"
+#include "Random.h"
 
 Board::Board()
 {
@@ -25,11 +25,8 @@ void Board::initializeBoard(bool isChess960)
 
     if (isChess960)
     {
-        // Здесь реализуйте инициализацию доски в режиме Chess960
         std::array<char, 8> positions{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(positions.begin(), positions.end(), g);
+        shuffleArray(positions);
 
         for (int i = 0; i < 8; i++)
         {
@@ -428,15 +425,6 @@ bool Board::isRookMoveValid(int startX, int startY, int endX, int endY)
 bool Board::isKnightMoveValid(int startX, int startY, int endX, int endY)
 {
     int deltaX = abs(endX - startX);
-    int deltaY = abs(endY - startY);
-
-    // Check if the move is a valid knight move
-    if ((deltaX == 1 && deltaY == 2) || (deltaX == 2 && deltaY == 1))
-    {
-        return true;
-    }
-
-    // If none of the conditions are met, the knight move is considered invalidint deltaX = abs(endX - startX);
     int deltaY = abs(endY - startY);
 
     // Check if the move is a valid knight move

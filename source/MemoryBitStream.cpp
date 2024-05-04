@@ -1,4 +1,4 @@
-#include "RoboCatPCH.h"
+#include <RoboCatPCH.hpp>
 
 void OutputMemoryBitStream::WriteBits( uint8_t inData,
 									  uint32_t inBitCount )
@@ -50,14 +50,14 @@ void OutputMemoryBitStream::WriteBits( const void* inData, uint32_t inBitCount )
 	}
 }
 
-void OutputMemoryBitStream::Write( const Vector3& inVector )
+void OutputMemoryBitStream::Write( const Vector2& inVector )
 {
 	Write( inVector.mX );
 	Write( inVector.mY );
 	Write( inVector.mZ );
 }
 
-void InputMemoryBitStream::Read( Vector3& outVector )
+void InputMemoryBitStream::Read( Vector2& outVector )
 {
 	Read( outVector.mX );
 	Read( outVector.mY );
@@ -168,4 +168,11 @@ void InputMemoryBitStream::Read( Quaternion& outQuat )
 	{
 		outQuat.mW *= -1;
 	}
+}
+
+void InputMemoryBitStream::Read( Vector2& outVector )
+{
+	Read( outVector.mX );
+	Read( outVector.mY );
+	Read( outVector.mZ );
 }

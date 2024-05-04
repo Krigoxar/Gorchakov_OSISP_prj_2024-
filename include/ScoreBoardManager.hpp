@@ -10,9 +10,9 @@ public:
 	public:
 		Entry() {};
 
-		Entry( uint32_t inPlayerID, const string& inPlayerName, const Vector3& inColor );
+		Entry( uint32_t inPlayerID, const string& inPlayerName, const Vector2& inColor );
 
-		const Vector3&	GetColor()		const	{ return mColor; }
+		const Color&	GetColor()		const	{ return mColor; }
 		uint32_t		GetPlayerId()	const	{ return mPlayerId; }
 		const string&	GetPlayerName()	const	{ return mPlayerName; }
 		const string&	GetFormattedNameScore()	const	{ return mFormattedNameScore; }
@@ -24,7 +24,7 @@ public:
 		bool			Read( InputMemoryBitStream& inInputStream );
 		static uint32_t	GetSerializedSize();
 	private:
-		Vector3			mColor;
+		Color			mColor;
 		
 		uint32_t		mPlayerId;
 		string			mPlayerName;
@@ -50,7 +50,7 @@ private:
 
 	vector< Entry >	mEntries;
 
-	vector< Vector3 >	mDefaultColors;
+	vector< Color >	mDefaultColors;
 
 
 };

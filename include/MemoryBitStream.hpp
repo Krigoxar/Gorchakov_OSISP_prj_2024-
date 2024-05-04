@@ -60,7 +60,7 @@ public:
 	
 	void 		Write( bool inData )								{ WriteBits( &inData, 1 ); }
 	
-	void		Write( const Vector3& inVector );	
+	void		Write( const Vector2& inVector );	
 	void		Write( const Quaternion& inQuat );
 
 	void Write( const std::string& inString )
@@ -148,7 +148,7 @@ public:
 		}
 	}
 
-	void Read( Vector3& inVector );
+	void Read( Vector2& inVector );
 
 private:
 	char*		mBuffer;

@@ -1,6 +1,6 @@
-#include "RoboCatPCH.h"
+#include <RoboCatPCH.hpp>
 
-float kDesiredFrameTime = 0.0166f;
+float kDesiredFrameTime = 0.03333333f;
 #if !_WIN32
 	#include <chrono>
 	using namespace std::chrono;
@@ -39,13 +39,18 @@ void Timing::Update()
 
     mDeltaTime = ( float ) ( currentTime - mLastFrameStartTime );
 
-	//frame lock at 60fps
+	//frame lock at 30fps
 	while( mDeltaTime < kDesiredFrameTime )
 	{
 		currentTime = GetTime();
 
 		mDeltaTime = (float)( currentTime - mLastFrameStartTime );
 	}
+
+	//set the delta time to the desired frame time, to try to account
+	//for potential slight fluctuations that may occur when exiting the loop
+	//this also will handle the frame time not going crazy if spammed with events
+	mDeltaTime = kDesiredFrameTime;
 	
 	mLastFrameStartTime = currentTime;
 	mFrameStartTimef = static_cast< float > ( mLastFrameStartTime );

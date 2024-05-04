@@ -4,7 +4,6 @@ namespace StringUtils
 
 	string Sprintf( const char* inFormat, ... );
 
-	void	Log( const char* inFormat );
 	void	Log( const char* inFormat, ... );
 }
 

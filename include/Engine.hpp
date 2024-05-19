@@ -3,17 +3,19 @@ class Engine
 
 public:
 	static bool StaticInit();
-	virtual ~Engine();
+	Engine();
 	static std::unique_ptr< Engine >	sInstance;
 
 	void			SetShouldKeepRunning( bool inShouldKeepRunning ) { mShouldKeepRunning = inShouldKeepRunning; }
+	
+	static void FindLobby(const string& inAddress, const string & inName);
+	static void CreateLobby( const string& inPort, const string& inName );
 protected:
-
-	Engine();
 
 	virtual void	UpdateStates();
 
 private:
+
 
 			bool	mShouldKeepRunning;
 };

@@ -44,6 +44,7 @@ using std::map;
 
 class Piece;
 class GameObject;
+enum class PieceType;
 
 #include "RoboMath.hpp"
 #include "RandGen.hpp"

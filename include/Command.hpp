@@ -4,7 +4,8 @@ public:
 	enum ECommandType
 	{
 		CM_INVALID,
-		CM_MOVE
+		CM_MOVE,
+		CM_RESIGN,
 	};
 
 	Command() :
@@ -20,7 +21,7 @@ public:
 	int GetNetworkId() const { return mNetworkId; }
 
 	void SetPlayerId( uint32_t inId ) { mPlayerId = inId; }
-	int GetPlayerId() const { return mPlayerId; }
+	uint32_t GetPlayerId() const { return mPlayerId; }
 
 	virtual void Write( OutputMemoryBitStream& inOutputStream );
 	virtual void ProcessCommand() = 0;
@@ -54,5 +55,24 @@ protected:
 
 	Vector2 mTarget;
 };
-
 typedef shared_ptr< MoveCommand > MoveCommandPtr;
+
+class ResignCommnad : public Command
+{
+public:
+	ResignCommnad()
+	{
+		mCommandType = CM_RESIGN;
+	}
+
+	static shared_ptr< ResignCommnad > StaticCreate();
+
+	virtual void Write( OutputMemoryBitStream& inOutputStream ) override;
+
+	virtual void ProcessCommand() override;
+
+protected:
+	virtual void Read( InputMemoryBitStream& inInputStream ) override;
+};
+typedef shared_ptr< ResignCommnad > ResignCommnadPtr;
+

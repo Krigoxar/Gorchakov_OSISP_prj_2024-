@@ -61,7 +61,6 @@ public:
 	void 		Write( bool inData )								{ WriteBits( &inData, 1 ); }
 	
 	void		Write( const Vector2& inVector );	
-	void		Write( const Quaternion& inQuat );
 
 	void Write( const std::string& inString )
 	{
@@ -131,8 +130,6 @@ public:
 
 	void		Read( uint8_t& outData, uint32_t inBitCount = 8 )		{ ReadBits( &outData, inBitCount ); }
 	void		Read( bool& outData )									{ ReadBits( &outData, 1 ); }
-
-	void		Read( Quaternion& outQuat );
 
 	void		ResetToCapacity( uint32_t inByteCapacity )				{ mBitCapacity = inByteCapacity << 3; mBitHead = 0; }
 

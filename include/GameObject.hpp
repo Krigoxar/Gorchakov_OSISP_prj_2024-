@@ -15,7 +15,7 @@ public:
 
 	virtual	Piece*		GetAsPiece()	{ return nullptr; }
 
-	virtual void		Update( float inDeltaTime );
+	//virtual void		Update( float inDeltaTime );
 
 	virtual void		HandleDying();
 

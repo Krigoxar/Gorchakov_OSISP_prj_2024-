@@ -1,3 +1,14 @@
+enum class PieceType
+{
+	NONE,
+    PAWN,
+    ROOK,
+    KNIGHT,
+    BISHOP,
+    QUEEN,
+    KING
+};
+
 class Piece: public GameObject
 {
 public:
@@ -23,14 +34,3 @@ private:
 };
 
 typedef shared_ptr< Piece >	PiecePtr;
-
-enum class PieceType
-{
-	NONE,
-    PAWN,
-    ROOK,
-    KNIGHT,
-    BISHOP,
-    QUEEN,
-    KING
-};

@@ -10,7 +10,7 @@ public:
 	public:
 		Entry() {};
 
-		Entry( uint32_t inPlayerID, const string& inPlayerName, const Vector2& inColor );
+		Entry( uint32_t inPlayerID, const string& inPlayerName, const Color& inColor );
 
 		const Color&	GetColor()		const	{ return mColor; }
 		uint32_t		GetPlayerId()	const	{ return mPlayerId; }
@@ -35,6 +35,7 @@ public:
 	};
 
 	Entry*	GetEntry( uint32_t inPlayerId );
+	Entry*	GetOtherEntry( uint32_t inPlayerId );
 	bool	RemoveEntry( uint32_t inPlayerId );
 	void	AddEntry( uint32_t inPlayerId, const string& inPlayerName );
 	void	IncScore( uint32_t inPlayerId, int inAmount );

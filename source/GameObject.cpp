@@ -14,10 +14,10 @@ GameObject::~GameObject()
 {
 }
 
-void GameObject::Update( float inDeltaTime )
-{
-	//object don't do anything by default...	
-}
+// void GameObject::Update( float inDeltaTime )
+// {
+// 	//object don't do anything by default...	
+// }
 
 void GameObject::HandleDying()
 {

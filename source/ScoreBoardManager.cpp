@@ -14,7 +14,7 @@ ScoreBoardManager::ScoreBoardManager()
 	mDefaultColors.push_back( Color::BLACK );
 }
 
-ScoreBoardManager::Entry::Entry( uint32_t inPlayerId, const string& inPlayerName, const Vector2& inColor ) :
+ScoreBoardManager::Entry::Entry( uint32_t inPlayerId, const string& inPlayerName, const Color& inColor ) :
 mPlayerId( inPlayerId ),
 mPlayerName( inPlayerName ),
 mColor( inColor )
@@ -42,6 +42,17 @@ ScoreBoardManager::Entry* ScoreBoardManager::GetEntry( uint32_t inPlayerId )
 	}
 
 	return nullptr;
+}
+
+ScoreBoardManager::Entry* ScoreBoardManager::GetOtherEntry(uint32_t inPlayerId) 
+{
+	Entry* curEntry = GetEntry(inPlayerId);
+	if(&mEntries[0] == curEntry)
+	{
+		return &mEntries[1];
+	}
+
+	return &mEntries[0]; 
 }
 
 bool ScoreBoardManager::RemoveEntry( uint32_t inPlayerId )

@@ -146,6 +146,7 @@ void NetworkManager::UpdateSayingHello(bool inForce)
 
 	if (inForce || time > mTimeOfLastHello + kTimeBetweenHellos)
 	{
+		LOG( "Right now i'll Try to connect." );
 		SendHelloPacket();
 		mTimeOfLastHello = time;
 	}
@@ -369,6 +370,7 @@ void NetworkManager::ProcessPacketsLobby(InputMemoryBitStream &inInputStream, co
 	switch (packetType)
 	{
 	case kHelloCC:
+		LOG("Welcome my dear friend");
 		HandleHelloPacket(inInputStream, inFromAddress);
 		break;
 	case kIntroCC:

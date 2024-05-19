@@ -1,6 +1,7 @@
 #include <RoboCatPCH.hpp>
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 
 
@@ -15,9 +16,12 @@ int main(int argc, const char** argv)
 	Engine::StaticInit();
 	std::cout << "Init Succes" << std::endl;
 
+	string input;
 	while (true)
 	{
-		
+
+		sleep(1);
+		Engine::sInstance->UpdateStates();
 	}
 
 	return 0;

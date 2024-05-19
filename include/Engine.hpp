@@ -9,10 +9,11 @@ public:
 	void			SetShouldKeepRunning( bool inShouldKeepRunning ) { mShouldKeepRunning = inShouldKeepRunning; }
 	
 	static void FindLobby(const string& inAddress, const string & inName);
-	static void CreateLobby( const string& inPort, const string& inName );
-protected:
+	static void CreateLobby( const string& inPort, const string& inName);
 
 	virtual void	UpdateStates();
+protected:
+
 
 private:
 

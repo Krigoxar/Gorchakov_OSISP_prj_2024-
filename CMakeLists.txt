@@ -98,7 +98,7 @@ add_executable(HOD
 include/Board.hpp include/Command.hpp include/CommandList.hpp include/Engine.hpp include/GameObject.hpp include/GameObjectRegistry.hpp include/InputAction.hpp include/InputManager.hpp include/MemoryBitStream.hpp include/NetworkManager.hpp include/Piece.hpp include/RandGen.hpp include/RoboCatPCH.hpp include/RoboCatShared.hpp include/RoboMath.hpp include/ScoreBoardManager.hpp include/SocketAddress.hpp include/SocketAddressFactory.hpp include/SocketUtil.hpp include/StringUtils.hpp include/TCPSocket.hpp include/Timing.hpp include/TurnData.hpp include/UDPSocket.hpp include/WeightedTimedMovingAverage.hpp 
 source/additional-sourcefile.cpp source/Board.cpp source/Command.cpp source/CommandList.cpp source/Engine.cpp source/GameObject.cpp source/GameObjectRegistry.cpp source/InputManager.cpp source/main.cpp source/MemoryBitStream.cpp source/NetworkManager.cpp source/Piece.cpp source/RandGen.cpp source/RoboMath.cpp source/ScoreBoardManager.cpp source/SocketAddress.cpp source/SocketAddressFactory.cpp source/SocketUtil.cpp source/StringUtils.cpp source/TCPSocket.cpp source/Timing.cpp source/TurnData.cpp source/UDPSocket.cpp)
 
-target_compile_options(HOD PRIVATE -Wno-reorder -Wno-multichar -Wno-sign-compare -Wno-unused-parameter)
+target_compile_options(HOD PRIVATE -Wno-reorder -Wno-multichar -Wno-sign-compare -Wno-unused-parameter )
 
 target_include_directories(HOD
     PRIVATE 

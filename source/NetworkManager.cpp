@@ -2,6 +2,7 @@
 #include <zlib.h>
 #include <array>
 #include <iostream>
+#include <algorithm>
 unique_ptr<NetworkManager> NetworkManager::sInstance;
 
 namespace
@@ -671,16 +672,56 @@ void NetworkManager::UpdateHighestPlayerId(uint32_t inId)
 	mHighestPlayerId = std::max(mHighestPlayerId, inId);
 }
 
+bool IsPosiblePiecesLocation(std::array<char, 8> &array)
+{
+	bool IsBlackBishop = false;
+	for (int i = 0; i < 8; i++)
+	{
+		if((array[i] == 'B') && ((i % 2) == 0)) 
+		{
+			IsBlackBishop = true;
+		}
+	}
+	
+	bool IsWhiteBishop = false;
+	for (int i = 0; i < 8; i++)
+	{
+		if((array[i] == 'B') && ((i % 2) == 1)) 
+		{
+			IsWhiteBishop = true;
+		}
+	}
+
+	auto iterator = std::find(array.begin(), array.end(), 'R');
+	int FirtRockPos = iterator - array.begin();
+	iterator++;
+	int SeconddRockPos = std::find(iterator, array.end(), 'R') - array.begin();
+	int KingPos = std::find(iterator, array.end(), 'K') - array.begin();
+	
+	bool IsKingBetweenRocks = FirtRockPos < KingPos && KingPos < SeconddRockPos;
+
+	return IsBlackBishop && IsWhiteBishop && IsKingBetweenRocks;
+}
+
 void shuffleArray(std::array<char, 8> &array)
 {
-	// Получаем текущее время в секундах
-
 	// Перемешиваем массив
-	for (int i = 7; i > 0; --i)
+	for (int x = 0; x < 10; x++)
 	{
-		int j = RandGen::sInstance->GetRandomUInt32(0, 8);
-		LOG("%d to Pos %d", i, j);
-		std::swap(array[i], array[j]);
+		for (int i = 7; i > 0; --i)
+		{
+			int j = RandGen::sInstance->GetRandomUInt32(0, 8);
+
+			std::array<char, 8>TestArray;
+			std::copy(array.begin(), array.end(), TestArray.begin());
+			std::swap(TestArray[i], TestArray[j]);
+
+			if(!IsPosiblePiecesLocation(TestArray)) {
+				continue;
+			}
+
+			std::swap(array[i], array[j]);
+		}
 	}
 }
 

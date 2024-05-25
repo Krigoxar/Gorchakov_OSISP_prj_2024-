@@ -1,13 +1,14 @@
 #include <RoboCatPCH.hpp>
 #include <zlib.h>
 #include <array>
+#include <iostream>
 unique_ptr<NetworkManager> NetworkManager::sInstance;
 
 namespace
 {
 	const float kTimeBetweenHellos = 1.f;
-	const float kStartDelay = 3.0f;
-	const int kSubTurnsPerTurn = 3;
+	const float kStartDelay = 0.0f;
+	const int kSubTurnsPerTurn = 1;
 	const int kMaxPlayerCount = 2;
 }
 
@@ -484,6 +485,9 @@ void NetworkManager::HandleStartPacket(InputMemoryBitStream &inInputStream, cons
 		// get the rng seed
 		uint32_t seed;
 		inInputStream.Read(seed);
+		
+		LOG("seed: %d", seed);
+
 		RandGen::sInstance->Seed(seed);
 		// for now, assume that we're one frame off, but ideally we would RTT to adjust
 		// the time to start, based on latency/jitter
@@ -674,7 +678,8 @@ void shuffleArray(std::array<char, 8> &array)
 	// Перемешиваем массив
 	for (int i = 7; i > 0; --i)
 	{
-		int j = RandGen::sInstance->GetRandomInt(0, UINT32_MAX) % (i + 1);
+		int j = RandGen::sInstance->GetRandomUInt32(0, 8);
+		LOG("%d to Pos %d", i, j);
 		std::swap(array[i], array[j]);
 	}
 }
@@ -698,12 +703,8 @@ void NetworkManager::initializePawns(uint32_t inPlayerId)
 	}
 }
 
-void NetworkManager::initializePieces(uint32_t inPlayerId)
-{
-	std::array<char, 8> positions{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
-
-	shuffleArray(positions);
-
+void NetworkManager::initializePieces(uint32_t inPlayerId, std::array<char, 8> inPositions)
+{	
 	Vector2 mSpawnPos;
 
 	if (ScoreBoardManager::sInstance->GetEntry(inPlayerId)->GetColor() == Color::WHITE)
@@ -718,7 +719,7 @@ void NetworkManager::initializePieces(uint32_t inPlayerId)
 	for (int i = 0; i < 8; i++)
 	{
 		mSpawnPos.mY = i;
-		switch (positions[i])
+		switch (inPositions[i])
 		{
 		case 'R':
 			SpawnPiece(inPlayerId, mSpawnPos, PieceType::ROOK);
@@ -739,11 +740,11 @@ void NetworkManager::initializePieces(uint32_t inPlayerId)
 	}
 }
 
-void NetworkManager::initializeBoard(uint32_t inPlayerId)
+void NetworkManager::initializeBoard(uint32_t inPlayerId, std::array<char, 8> inPositions)
 {
 	initializePawns(inPlayerId);
 
-	initializePieces(inPlayerId);
+	initializePieces(inPlayerId, inPositions);
 }
 
 void NetworkManager::EnterPlayingState()
@@ -752,23 +753,36 @@ void NetworkManager::EnterPlayingState()
 
 	bool isMasterPeerWhite = RandGen::sInstance->GetRandomInt(0, 1);
 
-	auto iterFirst = *mPlayerNameMap.begin();
-	auto iterSecond = *(mPlayerNameMap.begin()++);
+	auto iter = mPlayerNameMap.begin();
+	auto First = *iter;
+	iter++;
+	auto Second = *iter;
 	// create scoreboard entry for each player
 	if(isMasterPeerWhite) 
 	{
-		ScoreBoardManager::sInstance->AddEntry(iterFirst.first, iterFirst.second);
-		ScoreBoardManager::sInstance->AddEntry(iterSecond.first, iterSecond.second);
+		ScoreBoardManager::sInstance->AddEntry(First.first, First.second);
+		ScoreBoardManager::sInstance->AddEntry(Second.first, Second.second);
 	}
 	else 
 	{
-		ScoreBoardManager::sInstance->AddEntry(iterSecond.first, iterSecond.second);
-		ScoreBoardManager::sInstance->AddEntry(iterFirst.first, iterFirst.second);
+		ScoreBoardManager::sInstance->AddEntry(Second.first, Second.second);
+		ScoreBoardManager::sInstance->AddEntry(First.first, First.second);
 	}
+
+	std::array<char, 8> positions{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
+
+	shuffleArray(positions);
+
+	for (int i = 0; i < 8; i++)
+	{
+		std::cout << positions[i] << " ";
+	}
+
+	std::cout << std::endl;
 
 	for (auto &iter : mPlayerNameMap)
 	{
-		initializeBoard(iter.first);
+		initializeBoard(iter.first, positions);
 	}
 }
 
@@ -829,6 +843,9 @@ void NetworkManager::TryStartGame()
 
 		// select a seed value
 		uint32_t seed = RandGen::sInstance->GetRandomUInt32(0, UINT32_MAX);
+		
+		LOG("seed: %d", seed);
+
 		RandGen::sInstance->Seed(seed);
 		outPacket.Write(seed);
 

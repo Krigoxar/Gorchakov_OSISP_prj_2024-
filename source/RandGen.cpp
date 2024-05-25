@@ -14,7 +14,6 @@ void RandGen::StaticInit()
 	sInstance = std::make_unique< RandGen >();
 	//just use a default random seed, we'll reseed later
     std::time_t currentTime = std::time(nullptr);
-
 	sInstance->mt = RandGen::MersenneTwister( currentTime );
 }
 

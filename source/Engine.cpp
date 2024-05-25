@@ -21,7 +21,7 @@ bool Engine::StaticInit()
 
 	sInstance.reset( new Engine() );
 
- 	GameObjectRegistry::sInstance->RegisterCreationFunction( 'RCAT', Piece::StaticCreate );
+ 	GameObjectRegistry::sInstance->RegisterCreationFunction( 'PIEC', Piece::StaticCreate );
  
  	string destination = StringUtils::GetCommandLineArg( 1 );
  	string name = StringUtils::GetCommandLineArg( 2 );

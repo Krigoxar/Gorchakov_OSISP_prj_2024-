@@ -118,9 +118,9 @@ private:
 
 	void	UpdateHighestPlayerId( uint32_t inId );
 	void	EnterPlayingState();
-	void 	initializeBoard(uint32_t inPlayerId);
+	void 	initializeBoard(uint32_t inPlayerId, std::array<char, 8> inPositions);
 	void 	initializePawns(uint32_t inPlayerId);
-	void 	initializePieces(uint32_t inPlayerId);
+	void 	initializePieces(uint32_t inPlayerId, std::array<char, 8> inPositions);
 	void	SpawnPiece( uint32_t inPlayerId, const Vector2& inSpawnVec, PieceType inPieceType );
 
 	//these should stay ordered!

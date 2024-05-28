@@ -1,4 +1,4 @@
-#include "RoboCatPCH.h"
+#include <RoboCatPCH.hpp>
 
 #if !_WIN32
 extern const char** __argv;
@@ -27,12 +27,8 @@ string StringUtils::Sprintf( const char* inFormat, ... )
 	
 	va_list args;
 	va_start (args, inFormat );
-	
-#if _WIN32
-	_vsnprintf_s( temp, 4096, 4096, inFormat, args );
-#else
+
 	vsnprintf(temp, 4096, inFormat, args);
-#endif
 	return string( temp );
 }
 
@@ -50,11 +46,7 @@ void StringUtils::Log( const char* inFormat, ... )
 	va_list args;
 	va_start (args, inFormat );
 	
-#if _WIN32
-	_vsnprintf_s( temp, 4096, 4096, inFormat, args );
-#else
 	vsnprintf(temp, 4096, inFormat, args);
-#endif
 	OutputDebugString( temp );
 	OutputDebugString( "\n" );
 }

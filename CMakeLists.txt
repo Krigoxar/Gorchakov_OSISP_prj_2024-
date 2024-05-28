@@ -78,7 +78,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 find_package(SDL2 REQUIRED)
-
+find_package(ZLIB REQUIRED)
 ###############
 ##  Project  ##
 ###############
@@ -95,21 +95,22 @@ find_lto(CXX)
 # Always list the source files explicitly, including headers so that they are listed in the IDE
 # If you need to use files based on a variable value, use target_sources
 add_executable(HOD 
-include/Engine.h include/GameObject.h include/GameObjectRegistry.h include/InputAction.h include/InputState.h include/MemoryBitStream.h include/Mouse.h include/Move.h include/MoveList.h include/NetworkManager.h include/ReplicationCommand.h include/RoboCat.h include/RoboCatPCH.h include/RoboCatShared.h include/RoboMath.h include/ScoreBoardManager.h include/SocketAddress.h include/SocketAddressFactory.h include/SocketUtil.h include/StringUtils.h include/TCPSocket.h include/Timing.h include/UDPSocket.h include/WeightedTimedMovingAverage.h include/World.h include/Yarn.h source/additional-sourcefile.cpp source/Engine.cpp source/GameObject.cpp source/GameObjectRegistry.cpp source/InputState.cpp source/main.cpp source/MemoryBitStream.cpp source/Mouse.cpp source/Move.cpp source/MoveList.cpp source/NetworkManager.cpp source/RoboCat.cpp source/RoboCatPCH.cpp source/RoboMath.cpp source/ScoreBoardManager.cpp source/SocketAddress.cpp source/SocketAddressFactory.cpp source/SocketUtil.cpp source/StringUtils.cpp source/TCPSocket.cpp source/Timing.cpp source/UDPSocket.cpp source/World.cpp source/Yarn.cpp)
+include/Board.hpp include/Command.hpp include/CommandList.hpp include/Engine.hpp include/GameObject.hpp include/GameObjectRegistry.hpp include/InputAction.hpp include/InputManager.hpp include/MemoryBitStream.hpp include/NetworkManager.hpp include/Piece.hpp include/RandGen.hpp include/RoboCatPCH.hpp include/RoboCatShared.hpp include/RoboMath.hpp include/ScoreBoardManager.hpp include/SocketAddress.hpp include/SocketAddressFactory.hpp include/SocketUtil.hpp include/StringUtils.hpp include/TCPSocket.hpp include/Timing.hpp include/TurnData.hpp include/UDPSocket.hpp include/WeightedTimedMovingAverage.hpp 
+source/additional-sourcefile.cpp source/Board.cpp source/Command.cpp source/CommandList.cpp source/Engine.cpp source/GameObject.cpp source/GameObjectRegistry.cpp source/InputManager.cpp source/main.cpp source/MemoryBitStream.cpp source/NetworkManager.cpp source/Piece.cpp source/RandGen.cpp source/RoboMath.cpp source/ScoreBoardManager.cpp source/SocketAddress.cpp source/SocketAddressFactory.cpp source/SocketUtil.cpp source/StringUtils.cpp source/TCPSocket.cpp source/Timing.cpp source/TurnData.cpp source/UDPSocket.cpp)
 
-target_compile_options(HOD PRIVATE -Wno-reorder)
-target_compile_options(HOD PRIVATE -Wno-multichar)
+target_compile_options(HOD PRIVATE -Wno-reorder -Wno-multichar -Wno-sign-compare -Wno-unused-parameter )
 
 target_include_directories(HOD
     PRIVATE 
-        include ${SDL2_INCLUDE_DIRS})
+        include ${SDL2_INCLUDE_DIRS}
+)
 
 target_link_libraries(HOD
     #PUBLIC # Useful for libraries, see https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html for more details about transitive usage requirements.
         #libraries/targets to link when linking this library
         #this will automatically setup the needed flags and dependencies when linking against this target
     PRIVATE # The following libraries are only linked for this target, and its flags/dependencies will not be used when linking against this target
-        general fmt::fmt spdlog::spdlog ${SDL2_LIBRARIES}# It is possible to link some libraries for debug or optimized builds only
+        general fmt::fmt spdlog::spdlog ZLIB::ZLIB #${SDL2_LIBRARIES}# It is possible to link some libraries for debug or optimized builds only
         #debug DEBUGLIBS
         #optimized RELEASELIBS
 )

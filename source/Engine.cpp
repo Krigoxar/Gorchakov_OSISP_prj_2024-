@@ -1,82 +1,76 @@
-#include <RoboCatPCH.h>
-#include <time.h>
-#include <SDL.h>
+#include <RoboCatPCH.hpp>
 
-std::unique_ptr< Engine >	Engine::sInstance;
+unique_ptr<Engine> Engine::sInstance;
 
-
-Engine::Engine() :
-mShouldKeepRunning( true )
+bool Engine::StaticInit()
 {
+	RandGen::StaticInit();
+
 	SocketUtil::StaticInit();
 
-	srand( static_cast< uint32_t >( time( nullptr ) ) );
-	
 	GameObjectRegistry::StaticInit();
 
 
-	World::StaticInit();
+	Board::StaticInit();
 
 	ScoreBoardManager::StaticInit();
 
-	SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO );
-}
-
-Engine::~Engine()
-{
-	SocketUtil::CleanUp();
-
-	SDL_Quit();
-}
+	InputManager::StaticInit();
 
 
 
+	sInstance.reset( new Engine() );
 
-int Engine::Run()
-{
-	return DoRunLoop();
-}
+ 	GameObjectRegistry::sInstance->RegisterCreationFunction( 'PIEC', Piece::StaticCreate );
+ 
+ 	string destination = StringUtils::GetCommandLineArg( 1 );
+ 	string name = StringUtils::GetCommandLineArg( 2 );
 
-void Engine::HandleEvent( SDL_Event* inEvent )
-{
-	// Default implementation does nothing, up to derived classes to handle them, if they so choose
-	( void )inEvent;
-}
-
-int Engine::DoRunLoop()
-{
-	// Main message loop
-	bool quit = false;
-	SDL_Event event;
-	memset( &event, 0, sizeof( SDL_Event ) );
-
-	while( !quit && mShouldKeepRunning )
+	if ( destination == "" || name == "" )
 	{
-		if( SDL_PollEvent( &event ) )
-		{
-			if( event.type == SDL_QUIT )
-			{
-				quit = true;
-			}
-			else
-			{
-				HandleEvent( &event );
-			}
-		}
-		else
-		{
-			Timing::sInstance.Update();
-
-			DoFrame();
-		}
+		LOG( "ERROR: Missing command line arguments." );
+		return false;
 	}
 
-	return event.type;
+	//assume no colon implies this is just the port, which implies that this is the master peer
+	if( destination.find_first_of( ':' ) == string::npos )
+	{
+		Engine::CreateLobby(destination, name);
+	}
+	else
+	{
+		FindLobby(destination, name);
+	}
+
+	return true;
 }
 
-void Engine::DoFrame()
+void Engine::FindLobby(const string& inAddress, const string & inName)
 {
-	World::sInstance->Update();
+	LOG( "Started as a Slave." );
+	SocketAddressPtr targetAddress = SocketAddressFactory::CreateIPv4FromString( inAddress );
+	if( !targetAddress )
+	{
+		LOG( "ERROR: Unable to create target address from destination." );
+		Engine::sInstance->SetShouldKeepRunning(false);
+	}
+	NetworkManager::StaticInitAsPeer( *targetAddress, inName );
 }
 
-	
+void Engine::CreateLobby( const string& inPort, const string& inName ) 
+{	
+	LOG( "Started as a Master." );
+	NetworkManager::StaticInitAsMasterPeer( stoi( inPort ), inName );
+}
+
+void Engine::UpdateStates()
+{
+	// Main work
+	InputManager::sInstance->Update();
+
+	Board::sInstance->Update();
+	NetworkManager::sInstance->ProcessIncomingPackets();
+	NetworkManager::sInstance->SendOutgoingPackets();
+}
+
+Engine::Engine() {}

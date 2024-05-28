@@ -1,5 +1,20 @@
-#include "RoboCatPCH.h"
+#include <RoboCatPCH.hpp>
 
+//TODO: check these, I have no idea if this is the best way to do it...
+//(definitely doesn't work from cross-platform standpoint)
+void SocketAddress::Read( InputMemoryBitStream& inInputStream )
+{
+	//read the address and port
+	inInputStream.Read( GetIP4Ref() );
+	inInputStream.Read( GetAsSockAddrIn()->sin_port );
+}
+
+void SocketAddress::Write( OutputMemoryBitStream& inOutputStream )
+{
+	//write the address and port
+	inOutputStream.Write( GetIP4Ref() );
+	inOutputStream.Write( GetAsSockAddrIn()->sin_port );
+}
 
 string	SocketAddress::ToString() const
 {

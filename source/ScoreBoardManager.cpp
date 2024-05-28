@@ -1,6 +1,6 @@
-#include "RoboCatPCH.h"
+#include <RoboCatPCH.hpp>
 
-std::unique_ptr< ScoreBoardManager >	ScoreBoardManager::sInstance;
+std::unique_ptr< ScoreBoardManager >	ScoreBoardManager::sInstance = nullptr;
 
 
 void ScoreBoardManager::StaticInit()
@@ -10,13 +10,11 @@ void ScoreBoardManager::StaticInit()
 
 ScoreBoardManager::ScoreBoardManager()
 {
-	mDefaultColors.push_back( Colors::LightYellow );
-	mDefaultColors.push_back( Colors::LightBlue );
-	mDefaultColors.push_back( Colors::LightPink );
-	mDefaultColors.push_back( Colors::LightGreen );
+	mDefaultColors.push_back( Color::WHITE );
+	mDefaultColors.push_back( Color::BLACK );
 }
 
-ScoreBoardManager::Entry::Entry( uint32_t inPlayerId, const string& inPlayerName, const Vector3& inColor ) :
+ScoreBoardManager::Entry::Entry( uint32_t inPlayerId, const string& inPlayerName, const Color& inColor ) :
 mPlayerId( inPlayerId ),
 mPlayerName( inPlayerName ),
 mColor( inColor )
@@ -28,9 +26,7 @@ void ScoreBoardManager::Entry::SetScore( int32_t inScore )
 {
 	mScore = inScore;
 
-	char	buffer[ 256 ];
-	snprintf( buffer, 256, "%s %i", mPlayerName.c_str(), mScore );
-	mFormattedNameScore = string( buffer );
+	mFormattedNameScore = StringUtils::Sprintf("%s %i", mPlayerName.c_str(), mScore);
 
 }
 
@@ -46,6 +42,17 @@ ScoreBoardManager::Entry* ScoreBoardManager::GetEntry( uint32_t inPlayerId )
 	}
 
 	return nullptr;
+}
+
+ScoreBoardManager::Entry* ScoreBoardManager::GetOtherEntry(uint32_t inPlayerId) 
+{
+	Entry* curEntry = GetEntry(inPlayerId);
+	if(&mEntries[0] == curEntry)
+	{
+		return &mEntries[1];
+	}
+
+	return &mEntries[0]; 
 }
 
 bool ScoreBoardManager::RemoveEntry( uint32_t inPlayerId )
@@ -67,7 +74,7 @@ void ScoreBoardManager::AddEntry( uint32_t inPlayerId, const string& inPlayerNam
 	//if this player id exists already, remove it first- it would be crazy to have two of the same id
 	RemoveEntry( inPlayerId );
 	
-	mEntries.emplace_back( inPlayerId, inPlayerName, mDefaultColors[ inPlayerId % mDefaultColors.size() ] );
+	mEntries.emplace_back( inPlayerId, inPlayerName, mDefaultColors[ (inPlayerId - 1) % mDefaultColors.size() ] );
 }
 
 void ScoreBoardManager::IncScore( uint32_t inPlayerId, int inAmount )
@@ -83,7 +90,7 @@ void ScoreBoardManager::IncScore( uint32_t inPlayerId, int inAmount )
 
 bool ScoreBoardManager::Write( OutputMemoryBitStream& inOutputStream ) const
 {
-	int entryCount = mEntries.size();
+	int entryCount = static_cast<int>( mEntries.size() );
 	
 	//we don't know our player names, so it's hard to check for remaining space in the packet...
 	//not really a concern now though

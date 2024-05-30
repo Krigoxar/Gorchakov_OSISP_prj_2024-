@@ -242,12 +242,14 @@ void NetworkManager::TryAdvanceTurn()
 			LOG("DESYNC: Game over man, game over.");
 			Engine::sInstance->SetShouldKeepRunning(false);
 		}
+
+		//LOG("Turn %d occured in %d plyers", mTurnNumber, mTurnData[mTurnNumber + 1].size());
 	}
 	else
 	{
 		// don't have all player's turn data, we have to delay :(
 		mState = NMS_Delay;
-		LOG("Going into delay state, don't have all the info for turn %d", mTurnNumber + 1);
+		//LOG("Going into delay state, don't have all the info for turn %d", mTurnNumber + 1);
 	}
 }
 

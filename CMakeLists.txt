@@ -102,7 +102,7 @@ target_compile_options(HOD PRIVATE -Wno-reorder -Wno-multichar -Wno-sign-compare
 
 target_include_directories(HOD
     PRIVATE 
-        include ${SDL2_INCLUDE_DIRS}
+        include #${SDL2_INCLUDE_DIRS}
 )
 
 target_link_libraries(HOD

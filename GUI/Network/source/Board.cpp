@@ -96,6 +96,7 @@ bool Board::isMoveValid(const Move &move)
     int endY = move.getEndY();
     Piece *movingPiece = GetPieceAt(Vector2(move.getStartX(), move.getStartY()));
 
+    if(movingPiece == NULL) {return false;}
 
     if (movingPiece == nullptr)
     {

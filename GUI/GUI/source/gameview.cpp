@@ -6,6 +6,7 @@
 #include "congratulationsview.h"
 #include "constants.h"
 #include "utils.h"
+#include <RoboCatPCH.hpp>
 
 int viewWidth = 1200;
 int viewHeight= 768;
@@ -254,6 +255,11 @@ void GameView::moveActivePawnToSelectedPoint(QPoint point) {
     BoardPosition boardPosition = boardViewModel.getBoardPositionForMousePosition(point);
     board->placeActivePawnAtBoardPosition(boardViewModel.getActivePawn(), boardPosition);
     boardViewModel.setNewPositionForActivePawn(boardPosition);
+
+    BoardPosition startPos = boardViewModel.getActivePawn()->position;
+    Vector2 startPosVec = Vector2(startPos.x, startPos.y);
+    Vector2 endPosVec = Vector2(boardPosition.x, boardPosition.y);
+    InputManager::sInstance->GenerateMoveComand(startPosVec, endPosVec);
 }
 
 void GameView::releaseActivePawn() {

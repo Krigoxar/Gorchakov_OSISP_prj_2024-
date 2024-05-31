@@ -44,7 +44,30 @@ SOURCES += \
         playerview.cpp \
         queenpawnmodel.cpp \
         rookpawnmodel.cpp \
-        utils.cpp
+        utils.cpp \
+        Board.cpp \
+        Command.cpp \
+        CommandList.cpp \
+        Engine.cpp \
+        GameObject.cpp \
+        GameObjectRegistry.cpp \
+        InputManager.cpp \
+        MemoryBitStream.cpp \
+        NetworkManager.cpp \
+        Piece.cpp \
+        RandGen.cpp \
+        RoboMath.cpp \
+        ScoreBoardManager.cpp \
+        SocketAddress.cpp \
+        SocketAddressFactory.cpp \
+        SocketUtil.cpp \
+        StringUtils.cpp \
+        TCPSocket.cpp \
+        Timing.cpp \
+        TurnData.cpp \
+        UDPSocket.cpp \
+        additional-sourcefile.cpp \
+        main.cpp
 
 HEADERS += \
         actionbutton.h \
@@ -67,7 +90,32 @@ HEADERS += \
         playerview.h \
         queenpawnmodel.h \
         rookpawnmodel.h \
-        utils.h
+        utils.h \
+        Board.hpp \
+        Command.hpp \
+        CommandList.hpp \
+        Engine.hpp \
+        GameObject.hpp \
+        GameObjectRegistry.hpp \
+        InputAction.hpp \
+        InputManager.hpp \
+        MemoryBitStream.hpp \
+        NetworkManager.hpp \
+        Piece.hpp \
+        RandGen.hpp \
+        RoboCatPCH.hpp \
+        RoboCatShared.hpp \
+        RoboMath.hpp \
+        ScoreBoardManager.hpp \
+        SocketAddress.hpp \
+        SocketAddressFactory.hpp \
+        SocketUtil.hpp \
+        StringUtils.hpp \
+        TCPSocket.hpp \
+        Timing.hpp \
+        TurnData.hpp \
+        UDPSocket.hpp \
+        WeightedTimedMovingAverage.hpp
 
 FORMS +=
 

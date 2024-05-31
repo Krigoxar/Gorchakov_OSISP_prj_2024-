@@ -2,6 +2,7 @@
 #include <QGraphicsTextItem>
 #include <QColor>
 #include <QBrush>
+#include <QTimer>
 #include "actionbutton.h"
 #include "congratulationsview.h"
 #include "constants.h"
@@ -28,8 +29,16 @@ GameView::GameView() {
     scene->setBackgroundBrush(brush);
 
     gameStarted = false;
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(1000);
 }
 
+void GameView::update()
+{
+    Engine::sInstance->UpdateStates();
+}
 
 void GameView::displayMainMenu() {
     // create title label

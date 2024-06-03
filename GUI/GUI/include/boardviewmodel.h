@@ -14,23 +14,23 @@ public:
 
     bool isEnPassantAvailable;
 
-    QList<BasePawnModel*> getBlackPawns();
-    QList<BasePawnModel*> getWhitePawns();
+    virtual QList<BasePawnModel*> getBlackPawns();
+    virtual QList<BasePawnModel*> getWhitePawns();
     BasePawnModel* getActivePawn();
-    PlayerType getWhosTurn();
-    PlayerType* getWinner();
-    void setActivePawnForField(PawnField *pawn);
-    void setNewPositionForActivePawn(BoardPosition position);
-    void discardActivePawn();
-    BoardPosition getBoardPositionForMousePosition(QPoint position);
-    bool validatePawnPalcementForMousePosition(QPoint position);
-    bool validatePawnMove(BoardPosition positionToMove, BasePawnModel *pawnToValidate = nullptr, BoardPosition *requestedActivePawnPosition = nullptr);
-    bool didRemoveEnemyOnBoardPosition(BoardPosition boardPosition);
-    bool isKingInCheck(PlayerType owner, bool isCheckingActivePlayer, BoardPosition positionToMoveActivePlayer);
-    bool didPromoteActivePawn();
-    void switchRound();
+    virtual PlayerType getWhosTurn();
+    virtual PlayerType* getWinner();
+    virtual void setActivePawnForField(PawnField *pawn);
+    virtual void setNewPositionForActivePawn(BoardPosition position);
+    virtual void discardActivePawn();
+    virtual BoardPosition getBoardPositionForMousePosition(QPoint position);
+    virtual bool validatePawnPalcementForMousePosition(QPoint position);
+    virtual bool validatePawnMove(BoardPosition positionToMove, BasePawnModel *pawnToValidate = nullptr, BoardPosition *requestedActivePawnPosition = nullptr);
+    virtual bool didRemoveEnemyOnBoardPosition(BoardPosition boardPosition);
+    virtual bool isKingInCheck(PlayerType owner, bool isCheckingActivePlayer, BoardPosition positionToMoveActivePlayer);
+    virtual bool didPromoteActivePawn();
+    virtual void switchRound();
 
-private:
+protected:
     BasePawnModel *activePawn;
     PlayerType whosTurn;
     QList<BasePawnModel*> blackPawns;

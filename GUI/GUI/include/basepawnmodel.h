@@ -5,17 +5,19 @@
 #include "boardposition.h"
 
 enum class PawnType {
-    king,
-    queen,
+    none,
+    pawn,
     rook,
-    bishop,
     knight,
-    pawn
+    bishop,
+    queen,
+    king,
 };
 
 enum class PlayerType {
+    none,
+    white,
     black,
-    white
 };
 
 class BasePawnModel {

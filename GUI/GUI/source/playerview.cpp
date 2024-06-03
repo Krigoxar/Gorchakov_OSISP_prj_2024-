@@ -63,7 +63,7 @@ void PlayerView::setActive(bool active) {
         borderColor = QColor(55, 51, 63);
     }
 
-    QPen pen(borderColor);
+    QPen pen(borderColor, 5);
     setPen(pen);
 }
 

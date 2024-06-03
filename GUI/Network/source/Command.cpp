@@ -72,7 +72,9 @@ void MoveCommand::ProcessCommand()
 	{
 		Piece* rc = obj->GetAsPiece();
 		rc->MoveToLocation( mTarget );
-	}
+    }
+    Board::sInstance->toggleTurn();
+    game->drawBoard();
 }
 
 void MoveCommand::Read( InputMemoryBitStream& inInputStream )

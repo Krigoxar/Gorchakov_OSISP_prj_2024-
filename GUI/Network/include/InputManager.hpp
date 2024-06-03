@@ -16,7 +16,7 @@ public:
 	void			Update();
 	uint32_t		GetSelectedNetId()	{ return mSelectedNetId; }
 
-	void GenerateMoveComand(const Vector2 inStartPosition, const Vector2 inEndPosition);
+	bool GenerateMoveComand(const Vector2 inStartPosition, const Vector2 inEndPosition);
 	void GenerateResignComand();
 
 private:

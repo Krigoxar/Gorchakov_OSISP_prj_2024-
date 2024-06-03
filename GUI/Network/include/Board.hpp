@@ -19,6 +19,8 @@ public:
 
 	uint32_t TrySelectGameObject(const Vector2 &inSelectLoc);
 
+	void SetFirstPlayer();
+
 	Color getCurrentTurnColor();
     bool isStalemate();
     bool isEnemyPiece(int x, int y);

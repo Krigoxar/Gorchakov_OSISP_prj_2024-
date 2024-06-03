@@ -61,19 +61,23 @@ void InputManager::Update()
 // 	}
 // }
 
-void InputManager::GenerateMoveComand(const Vector2 inStartPosition, const Vector2 inEndPosition)
+bool InputManager::GenerateMoveComand(const Vector2 inStartPosition, const Vector2 inEndPosition)
 {
-    if (mSelectedNetId == 0) { return; }
-    if (!Board::sInstance->IsMovePosible(inStartPosition, inEndPosition)) { return; }
+    mSelectedNetId = Board::sInstance->TrySelectGameObject(inStartPosition);
+    
+    if (mSelectedNetId == 0) { return false; }
+    if (!Board::sInstance->IsMovePosible(inStartPosition, inEndPosition)) { return false; }
 
-    CommandPtr cmd;
+    CommandPtr cmd = MoveCommand::StaticCreate(mSelectedNetId, inEndPosition - inStartPosition);
 
-    // fallback in case the attack command was invalid
-    if (!cmd) { cmd = MoveCommand::StaticCreate(mSelectedNetId, inEndPosition); }
-
-    if (cmd) { mCommandList.AddCommand(cmd); }
+    if (!cmd)
+    {
+        return false;
+    }
+    mCommandList.AddCommand(cmd);
 
     mSelectedNetId = 0;
+    return true;
 }
 
 void InputManager::GenerateResignComand()

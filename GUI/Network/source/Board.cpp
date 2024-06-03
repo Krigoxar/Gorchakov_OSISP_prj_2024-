@@ -72,6 +72,15 @@ uint32_t Board::TrySelectGameObject(const Vector2 &inSelectLoc)
 	return 0;
 }
 
+void Board::SetFirstPlayer() 
+{
+    mCurentPlayer = ScoreBoardManager::sInstance->GetEntries().begin()->GetPlayerId();
+    if(!(ScoreBoardManager::sInstance->GetEntries().begin()->GetColor() == Color::WHITE))
+    {
+        toggleTurn();
+    }
+}
+
 bool Board::IsMovePosible(Vector2 inStartPosition, Vector2 inEndPosition) 
 {
 	return isMoveValid(Move(inStartPosition.mX, inStartPosition.mY, inEndPosition.mX, inEndPosition.mY));
@@ -80,6 +89,10 @@ bool Board::IsMovePosible(Vector2 inStartPosition, Vector2 inEndPosition)
 Piece* Board::GetPieceAt(Vector2 inPosition)
 {
 	uint32_t networkID = TrySelectGameObject(inPosition);
+    if(NetworkManager::sInstance->GetGameObject(networkID) == nullptr) 
+    {
+        return nullptr;
+    }
     return NetworkManager::sInstance->GetGameObject(networkID)->GetAsPiece();
 }
 
@@ -312,7 +325,7 @@ bool Board::isWithinBoard(int x, int y)
 
 bool Board::isFreeOrEnemyPiece(int x, int y, Color color)
 {
-    Piece *piece = NetworkManager::sInstance->GetGameObject(TrySelectGameObject(Vector2(x,y)))->GetAsPiece();
+    GameObjectPtr piece = NetworkManager::sInstance->GetGameObject(TrySelectGameObject(Vector2(x,y)));
 
     // Проверяем, что на заданной позиции нет фигуры или фигура противника
     if (piece == nullptr || piece->GetColor() != color)
@@ -336,7 +349,7 @@ Color Board::getCurrentTurnColor()
 bool Board::isPawnMoveValid(int startX, int startY, int endX, int endY)
 {
     Piece *startPiece = NetworkManager::sInstance->GetGameObject(TrySelectGameObject(Vector2(startX, startY)))->GetAsPiece();
-    Piece *endPiece = NetworkManager::sInstance->GetGameObject(TrySelectGameObject(Vector2(endX, endY)))->GetAsPiece();
+    GameObjectPtr endPiece = NetworkManager::sInstance->GetGameObject(TrySelectGameObject(Vector2(endX, endY)));
     if (startPiece->GetColor() == Color::WHITE)
     {
         // WHITE pawn can move forward by one square
@@ -358,7 +371,7 @@ bool Board::isPawnMoveValid(int startX, int startY, int endX, int endY)
         // WHITE pawn can capture diagonally
         if (endX == startX - 1 && (endY == startY - 1 || endY == startY + 1))
         {
-            if (endPiece != nullptr && endPiece->GetColor() == Color::BLACK)
+            if (endPiece != nullptr && endPiece->GetAsPiece()->GetColor() == Color::BLACK)
             {
                 return true;
             }
@@ -385,7 +398,7 @@ bool Board::isPawnMoveValid(int startX, int startY, int endX, int endY)
         // BLACK pawn can capture diagonally
         if (endX == startX + 1 && (endY == startY - 1 || endY == startY + 1))
         {
-            if (endPiece != nullptr && endPiece->GetColor() == Color::WHITE)
+            if (endPiece != nullptr && endPiece->GetAsPiece()->GetColor() == Color::WHITE)
             {
                 return true;
             }

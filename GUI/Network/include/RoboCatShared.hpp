@@ -1,21 +1,24 @@
 
 
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <sys/types.h>
-	#include <netdb.h>
-	#include <errno.h>
-	#include <fcntl.h>
-	#include <unistd.h>
-	#include <stdarg.h>
-	#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <string.h>
 //typedef void* receiveBufer_t;
-	typedef int SOCKET;
-	const int NO_ERROR = 0;
-	const int INVALID_SOCKET = -1;
-	const int WSAECONNRESET = ECONNRESET;
-	const int WSAEWOULDBLOCK = EAGAIN;
-	const int SOCKET_ERROR = -1;
+typedef int SOCKET;
+const int NO_ERROR = 0;
+const int INVALID_SOCKET = -1;
+const int WSAECONNRESET = ECONNRESET;
+const int WSAEWOULDBLOCK = EAGAIN;
+const int SOCKET_ERROR = -1;
+
+#include "gameview.h"
+extern GameView *game;
 
 #include "memory"
 

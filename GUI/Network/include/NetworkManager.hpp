@@ -73,6 +73,7 @@ public:
 	float	GetSimulatedLatency() const				{ return mSimulatedLatency; }
 
 	bool	IsMasterPeer() const { return mIsMasterPeer; }
+    bool	IsMasterPeerWhite() const { return isMasterPeerWhite; }
 	float	GetTimeToStart() const { return mTimeToStart; }
 	
 	GameObjectPtr	GetGameObject( uint32_t inNetworkId ) const;
@@ -90,6 +91,8 @@ private:
 	void	RegisterGameObject( GameObjectPtr inGameObject );
 	uint32_t GetNewNetworkId();
 	uint32_t ComputeGlobalCRC();
+
+    bool isMasterPeerWhite;
 
 	bool	InitAsMasterPeer( uint16_t inPort, const string& inName );
 	bool	InitAsPeer( const SocketAddress& inMPAddress, const string& inName );

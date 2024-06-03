@@ -7,7 +7,7 @@
 #include "congratulationsview.h"
 #include "constants.h"
 #include "utils.h"
-#include <RoboCatPCH.hpp>
+#include <BoardAdapter.hpp>
 
 int viewWidth = 1200;
 int viewHeight= 768;
@@ -24,7 +24,17 @@ GameView::GameView() {
 
     QBrush brush;
     brush.setStyle((Qt::SolidPattern));
-    QColor color = QColor(44, 41, 51);
+    QColor color;
+
+    if(ScoreBoardManager::sInstance->GetEntry(NetworkManager::sInstance->GetMyPlayerId())->GetColor() == Color::WHITE)
+    {
+        color = QColor(255, 255, 255);
+    }
+    else
+    {
+        color = QColor(0, 0, 0);
+    }
+
     brush.setColor(color);
     scene->setBackgroundBrush(brush);
 
@@ -32,12 +42,17 @@ GameView::GameView() {
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(1000);
+    timer->start(100);
 }
 
 void GameView::update()
 {
     Engine::sInstance->UpdateStates();
+    if(gameStarted == true)
+    {
+        blackPlayerView->setActive(boardViewModel->getWhosTurn() == PlayerType::black);
+        whitePlayerView->setActive(boardViewModel->getWhosTurn() == PlayerType::white);
+    }
 }
 
 void GameView::displayMainMenu() {
@@ -66,9 +81,10 @@ void GameView::displayMainMenu() {
 
 void GameView::startGame() {
 
+    Board::sInstance->SetFirstPlayer();
     scene->clear();
 
-    boardViewModel = BoardViewModel();
+    boardViewModel = new BoardAdapter();
 
     drawBoard();
     drawSettingsPanel();
@@ -91,19 +107,19 @@ void GameView::resetGame() {
 void GameView::drawBoard() {
     board = new BoardView();
     board->draw();
-    board->initializePawnFields(boardViewModel.getBlackPawns());
-    board->initializePawnFields(boardViewModel.getWhitePawns());
+    board->initializePawnFields(boardViewModel->getBlackPawns());
+    board->initializePawnFields(boardViewModel->getWhitePawns());
 }
 
 void GameView::drawSettingsPanel() {
-    // create quit button
-    ActionButton *resetButton = new ActionButton("Reset game");
-    double resetXPosition = 690 + resetButton->boundingRect().width()/2;
-    double resetYPosition = 420;
-    resetButton->setPos(resetXPosition, resetYPosition);
+//    // create quit button
+//    ActionButton *resetButton = new ActionButton("Reset game");
+//    double resetXPosition = 690 + resetButton->boundingRect().width()/2;
+//    double resetYPosition = 420;
+//    resetButton->setPos(resetXPosition, resetYPosition);
 
-    connect(resetButton, SIGNAL(buttonPressed()), this, SLOT(resetGame()));
-    scene->addItem(resetButton);
+//    connect(resetButton, SIGNAL(buttonPressed()), this, SLOT(resetGame()));
+//    scene->addItem(resetButton);
 
     // create quit button
     ActionButton *quitButton = new ActionButton("Quit game");
@@ -157,7 +173,7 @@ void GameView::mousePressEvent(QMouseEvent *event) {
         return;
     } else if (event->button() == Qt::RightButton) {
         releaseActivePawn();
-    } else if (boardViewModel.getActivePawn()) {
+    } else if (boardViewModel->getActivePawn()) {
         handleSelectingPointForActivePawnByMouse(event->pos());
     } else {
         PawnField *pawn = board->getPawnAtMousePosition(event->pos());
@@ -169,8 +185,8 @@ void GameView::mousePressEvent(QMouseEvent *event) {
 
 void GameView::mouseMoveEvent(QMouseEvent *event) {
     // if there is a pawn selected, then make it follow the mouse
-    if (gameStarted && boardViewModel.getActivePawn()) {
-        board->moveActivePawnToMousePosition(event->pos(), boardViewModel.getActivePawn());
+    if (gameStarted && boardViewModel->getActivePawn()) {
+        board->moveActivePawnToMousePosition(event->pos(), boardViewModel->getActivePawn());
     }
 
     QGraphicsView::mouseMoveEvent(event);
@@ -182,35 +198,46 @@ void GameView::selectPawn(PawnField *pawn) {
         return;
     }
 
-    boardViewModel.setActivePawnForField(pawn);
+    boardViewModel->setActivePawnForField(pawn);
 }
 
 void GameView::handleSelectingPointForActivePawnByMouse(QPoint point) {
-    if (boardViewModel.getActivePawn() == nullptr) {
+    if (boardViewModel->getActivePawn() == nullptr) {
         return;
     }
 
     // check if mouse selected place on board
-    if (!boardViewModel.validatePawnPalcementForMousePosition(point)) {
+    if (!boardViewModel->validatePawnPalcementForMousePosition(point)) {
         return;
     }
 
-    BoardPosition boardPosition = boardViewModel.getBoardPositionForMousePosition(point);
+    BoardPosition boardPosition = boardViewModel->getBoardPositionForMousePosition(point);
+
+    BoardPosition startPos = boardViewModel->getActivePawn()->position;
+    Vector2 startPosVec = Vector2(startPos.y, startPos.x);
+    Vector2 endPosVec = Vector2(boardPosition.y, boardPosition.x);
+
+    if (!InputManager::sInstance->GenerateMoveComand(startPosVec, endPosVec)) {
+        board->placeActivePawnAtBoardPosition(boardViewModel->getActivePawn(), startPos);
+        boardViewModel->setNewPositionForActivePawn(startPos);
+        boardViewModel->discardActivePawn();
+        return;
+    }
 
     // first validate Move
-    if (!boardViewModel.validatePawnMove(boardPosition)) {
-        return;
-    }
+    // if (!boardViewModel->validatePawnMove(boardPosition)) {
+    //     return;
+    // }
 
     // Players cannot make any move that places their own king in check
-    bool isKingInCheck = boardViewModel.isKingInCheck(boardViewModel.getActivePawn()->owner, true, boardPosition);
-    board->setPawnMoveCheckWarning(isKingInCheck);
-    if (isKingInCheck) {
-        return;
-    }
+    // bool isKingInCheck = boardViewModel->isKingInCheck(boardViewModel->getActivePawn()->owner, true, boardPosition);
+    // board->setPawnMoveCheckWarning(isKingInCheck);
+    // if (isKingInCheck) {
+    //     return;
+    // }
 
     // check if field was taken by opposite player and remove it from the board
-    if (boardViewModel.didRemoveEnemyOnBoardPosition(boardPosition)) {
+    if (boardViewModel->didRemoveEnemyOnBoardPosition(boardPosition)) {
         board->removePawnAtBoardPosition(boardPosition);
     }
 
@@ -218,34 +245,34 @@ void GameView::handleSelectingPointForActivePawnByMouse(QPoint point) {
     moveActivePawnToSelectedPoint(point);
 
     // check if pawn can be promoted
-    if (boardViewModel.didPromoteActivePawn()) {
+    if (boardViewModel->didPromoteActivePawn()) {
         board->promotePawnAtBoardPosition(boardPosition);
     }
 
     // check for opposite player king's check
-    switch (boardViewModel.getActivePawn()->owner) {
-    case PlayerType::black:
-        setCheckStateOnPlayerView(PlayerType::white, boardViewModel.isKingInCheck(PlayerType::white, false, boardPosition));
-        break;
-    case PlayerType::white:
-        setCheckStateOnPlayerView(PlayerType::black, boardViewModel.isKingInCheck(PlayerType::black, false, boardPosition));
-        break;
-    }
+//    switch (boardViewModel->getActivePawn()->owner) {
+//    case PlayerType::black:
+//        setCheckStateOnPlayerView(PlayerType::white, boardViewModel->isKingInCheck(PlayerType::white, false, boardPosition));
+//        break;
+//    case PlayerType::white:
+//        setCheckStateOnPlayerView(PlayerType::black, boardViewModel->isKingInCheck(PlayerType::black, false, boardPosition));
+//        break;
+//    }
 
     // update active player check state
-    setCheckStateOnPlayerView(boardViewModel.getActivePawn()->owner, isKingInCheck);
+    // setCheckStateOnPlayerView(boardViewModel->getActivePawn()->owner, isKingInCheck);
 
     // check if game is over
-    if (boardViewModel.getWinner()) {
-        showCongratulationsScreen(*boardViewModel.getWinner());
+    if (boardViewModel->getWinner()) {
+        showCongratulationsScreen(*boardViewModel->getWinner());
         return;
     }
 
     // change round owner to opposite player
-    boardViewModel.discardActivePawn();
-    boardViewModel.switchRound();
-    blackPlayerView->setActive(boardViewModel.getWhosTurn() == PlayerType::black);
-    whitePlayerView->setActive(boardViewModel.getWhosTurn() == PlayerType::white);
+    boardViewModel->discardActivePawn();
+    Engine::sInstance->UpdateStates();
+    blackPlayerView->setActive(boardViewModel->getWhosTurn() == PlayerType::black);
+    whitePlayerView->setActive(boardViewModel->getWhosTurn() == PlayerType::white);
 }
 
 void GameView::setCheckStateOnPlayerView(PlayerType player, bool isInCheck) {
@@ -261,25 +288,20 @@ void GameView::setCheckStateOnPlayerView(PlayerType player, bool isInCheck) {
 
 // update pawn field position and pawn model position
 void GameView::moveActivePawnToSelectedPoint(QPoint point) {
-    BoardPosition boardPosition = boardViewModel.getBoardPositionForMousePosition(point);
-    board->placeActivePawnAtBoardPosition(boardViewModel.getActivePawn(), boardPosition);
-    boardViewModel.setNewPositionForActivePawn(boardPosition);
-
-    BoardPosition startPos = boardViewModel.getActivePawn()->position;
-    Vector2 startPosVec = Vector2(startPos.x, startPos.y);
-    Vector2 endPosVec = Vector2(boardPosition.x, boardPosition.y);
-    InputManager::sInstance->GenerateMoveComand(startPosVec, endPosVec);
+    BoardPosition boardPosition = boardViewModel->getBoardPositionForMousePosition(point);
+    board->placeActivePawnAtBoardPosition(boardViewModel->getActivePawn(), boardPosition);
+    boardViewModel->setNewPositionForActivePawn(boardPosition);
 }
 
 void GameView::releaseActivePawn() {
-    if (boardViewModel.getActivePawn() == nullptr) {
+    if (boardViewModel->getActivePawn() == nullptr) {
         return;
     }
 
-    BasePawnModel *activePawn = boardViewModel.getActivePawn();
+    BasePawnModel *activePawn = boardViewModel->getActivePawn();
     board->placeActivePawnAtBoardPosition(activePawn, activePawn->position);
     board->setPawnMoveCheckWarning(false);
-    boardViewModel.discardActivePawn();
+    boardViewModel->discardActivePawn();
 }
 
 void GameView::showCongratulationsScreen(PlayerType winner) {

@@ -182,6 +182,10 @@ void NetworkManager::UpdateSendTurnPacket()
 		TurnData data(mPlayerId, RandGen::sInstance->GetRandomUInt32(0, UINT32_MAX),
 					  ComputeGlobalCRC(), InputManager::sInstance->GetCommandList());
 
+        if(InputManager::sInstance->GetCommandList().GetCount() != 0)
+        {
+            LOG("Something sended.");
+        }
 		// we need to send a turn packet to all of our peers
 		OutputMemoryBitStream packet;
 		packet.Write(kTurnCC);
@@ -220,7 +224,7 @@ void NetworkManager::TryAdvanceTurn()
 		if (mState == NMS_Delay)
 		{
 			// throw away any input accrued during delay
-			InputManager::sInstance->ClearCommandList();
+            //InputManager::sInstance->ClearCommandList();
 			mState = NMS_Playing;
 			// wait 100ms to give the slow peer a chance to catch up
 		}
@@ -232,7 +236,7 @@ void NetworkManager::TryAdvanceTurn()
 		{
 			// process all the moves for this turn
 			for (auto &iter : mTurnData[mTurnNumber])
-			{
+            {
 				iter.second.GetCommandList().ProcessCommands(iter.first);
 			}
 		}
@@ -794,14 +798,26 @@ void NetworkManager::EnterPlayingState()
 {
 	mState = NMS_Playing;
 
-	bool isMasterPeerWhite = RandGen::sInstance->GetRandomInt(0, 1);
+    isMasterPeerWhite = RandGen::sInstance->GetRandomInt(0, 2);
 
 	auto iter = mPlayerNameMap.begin();
 	auto First = *iter;
 	iter++;
 	auto Second = *iter;
 	// create scoreboard entry for each player
-	if(isMasterPeerWhite) 
+
+    std::array<char, 8> positions{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
+
+    shuffleArray(positions);
+
+    for (int i = 0; i < 8; i++)
+    {
+        std::cout << positions[i] << " ";
+    }
+
+    std::cout << std::endl;
+
+    if(isMasterPeerWhite)
 	{
 		ScoreBoardManager::sInstance->AddEntry(First.first, First.second);
 		ScoreBoardManager::sInstance->AddEntry(Second.first, Second.second);
@@ -811,17 +827,6 @@ void NetworkManager::EnterPlayingState()
 		ScoreBoardManager::sInstance->AddEntry(Second.first, Second.second);
 		ScoreBoardManager::sInstance->AddEntry(First.first, First.second);
 	}
-
-	std::array<char, 8> positions{'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'};
-
-	shuffleArray(positions);
-
-	for (int i = 0; i < 8; i++)
-	{
-		std::cout << positions[i] << " ";
-	}
-
-	std::cout << std::endl;
 
 	for (auto &iter : mPlayerNameMap)
 	{

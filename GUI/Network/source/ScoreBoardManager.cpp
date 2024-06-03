@@ -73,8 +73,14 @@ void ScoreBoardManager::AddEntry( uint32_t inPlayerId, const string& inPlayerNam
 {
 	//if this player id exists already, remove it first- it would be crazy to have two of the same id
 	RemoveEntry( inPlayerId );
-	
-	mEntries.emplace_back( inPlayerId, inPlayerName, mDefaultColors[ (inPlayerId - 1) % mDefaultColors.size() ] );
+    if(mEntries.size() == 0)
+    {
+        mEntries.emplace_back( inPlayerId, inPlayerName, Color::WHITE );
+    }
+    else
+    {
+        mEntries.emplace_back( inPlayerId, inPlayerName, Color::BLACK );
+    }
 }
 
 void ScoreBoardManager::IncScore( uint32_t inPlayerId, int inAmount )

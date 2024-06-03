@@ -20,19 +20,21 @@ public:
 
     void displayMainMenu();
 
+    void drawBoard();
+
 public slots:
+    void update();
     void startGame();
     void quitGame();
     void resetGame();
 
 private:
-    BoardViewModel boardViewModel;
+    BoardViewModel *boardViewModel;
     bool gameStarted;
     BoardView *board;
     PlayerView *blackPlayerView;
     PlayerView *whitePlayerView;
 
-    void drawBoard();
     void drawSettingsPanel();
     void drawUserPanel();
     PlayerView* drawViewForUser(PlayerType player);

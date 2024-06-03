@@ -45,6 +45,7 @@ void BoardViewModel::setActivePawnForField(PawnField *pawn) {
     if (pawnModel && pawnModel->owner == whosTurn) {
         activePawn = pawnModel;
         pawn->setZValue(1);
+        
     }
 }
 

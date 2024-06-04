@@ -81,7 +81,7 @@ QList<BasePawnModel*> BoardAdapter::getWhitePawns()
 
 PlayerType BoardAdapter::getWhosTurn() 
 {
-    return (PlayerType)Board::sInstance->getCurrentTurnColor(); 
+    return (PlayerType)Board::sInstance->getTurnColor(); 
 }
 
 PlayerType* BoardAdapter::getWinner() 

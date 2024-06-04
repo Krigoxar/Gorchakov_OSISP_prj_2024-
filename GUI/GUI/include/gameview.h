@@ -21,6 +21,7 @@ public:
     void displayMainMenu();
 
     void drawBoard();
+    bool IsGameStarted();
 
 public slots:
     void update();

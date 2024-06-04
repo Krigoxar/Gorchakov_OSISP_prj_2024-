@@ -55,6 +55,11 @@ void Board::Update()
 			go->HandleDying();
 			--i;
 			--c;
+
+            if(game->IsGameStarted())
+            {
+                game->drawBoard();
+            }
 		}
 	}
 }
@@ -79,6 +84,33 @@ void Board::SetFirstPlayer()
     {
         toggleTurn();
     }
+}
+
+bool Board::TryBlow(Vector2 pos)
+{
+    if(GetPieceAt(pos) == nullptr)
+    {
+        return false;
+    }
+
+    GetPieceAt(pos)->SetDoesWantToDie(true);
+
+    for(int i = pos.mY - 1; i < pos.mY + 2; i++)
+    {
+        for(int j = pos.mX - 1; j < pos.mX + 2; j++)
+        {
+            if(GetPieceAt(Vector2(j, i)) == nullptr)
+            {
+                continue;
+            }
+            if(GetPieceAt(Vector2(j, i))->GetPieceType() == PieceType::PAWN)
+            {
+                continue;
+            }
+            GetPieceAt(Vector2(j, i))->SetDoesWantToDie(true);
+        }
+    }
+    return true;
 }
 
 bool Board::IsMovePosible(Vector2 inStartPosition, Vector2 inEndPosition) 
@@ -111,12 +143,10 @@ bool Board::isMoveValid(const Move &move)
 
     if(movingPiece == NULL) {return false;}
 
-    if (movingPiece == nullptr)
-    {
-        return false;
-    }
     Color movingPieceColor = movingPiece->GetColor();
-    Color turnColor = ScoreBoardManager::sInstance->GetEntry(mCurentPlayer)->GetColor();
+
+    Color turnColor = Board::getTurnColor();
+
     if (movingPieceColor != turnColor)
     {
         return false;
@@ -131,7 +161,7 @@ bool Board::isMoveValid(const Move &move)
         return false;
     }
 
-    if (!isFreeOrEnemyPiece(endX, endY, (movingPieceColor == Color::WHITE) ? Color::BLACK : Color::WHITE))
+    if (!isFreeOrEnemyPiece(endX, endY, movingPieceColor))
     {
         return false;
     }
@@ -341,7 +371,7 @@ void Board::toggleTurn()
 	mCurentPlayer = ScoreBoardManager::sInstance->GetOtherEntry(mCurentPlayer)->GetPlayerId();
 }
 
-Color Board::getCurrentTurnColor()
+Color Board::getTurnColor()
 {
     return ScoreBoardManager::sInstance->GetEntry(mCurentPlayer)->GetColor();
 }
@@ -455,30 +485,31 @@ bool Board::isBishopMoveValid(int startX, int startY, int endX, int endY)
     int deltaY = abs(endY - startY);
 
     // Check if the move is a valid bishop move
-    if (deltaX == deltaY)
+    if (deltaX != deltaY)
     {
-        // Check if there are any pieces in the path of the bishop's movement
-        int stepX = (endX > startX) ? 1 : -1;
-        int stepY = (endY > startY) ? 1 : -1;
+        return false;
+    }
 
-        int currentX = startX + stepX;
-        int currentY = startY + stepY;
+    // Check if there are any pieces in the path of the bishop's movement
+    int stepX = (endX - startX) / abs(endX - startX);
+    int stepY = (endY - startY) / abs(endY - startY);
 
-        while (currentX != endX || currentY != endY)
+    int currentX = startX + stepX;
+    int currentY = startY + stepY;
+
+    while (currentX != endX && currentY != endY)
+    {
+        if (GetPieceAt(currentX, currentY) != nullptr)
         {
-            if (GetPieceAt(currentX, currentY) != nullptr)
-            {
-                return false;
-            }
-
-            currentX += stepX;
-            currentY += stepY;
+            return false;
         }
 
-        // If there are no pieces in the path, the bishop move is considered valid
-        return true;
+        currentX += stepX;
+        currentY += stepY;
     }
-    return false;
+
+    // If there are no pieces in the path, the bishop move is considered valid
+    return true;
 }
 
 bool Board::isQueenMoveValid(int startX, int startY, int endX, int endY)

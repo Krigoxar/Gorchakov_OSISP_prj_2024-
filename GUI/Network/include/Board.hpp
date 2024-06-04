@@ -21,7 +21,9 @@ public:
 
 	void SetFirstPlayer();
 
-	Color getCurrentTurnColor();
+    bool TryBlow(Vector2 pos);
+
+    Color getTurnColor();
     bool isStalemate();
     bool isEnemyPiece(int x, int y);
     void toggleTurn();

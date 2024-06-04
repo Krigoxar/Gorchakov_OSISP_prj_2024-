@@ -111,6 +111,11 @@ void GameView::drawBoard() {
     board->initializePawnFields(boardViewModel->getWhitePawns());
 }
 
+bool GameView::IsGameStarted()
+{
+    return gameStarted;
+}
+
 void GameView::drawSettingsPanel() {
 //    // create quit button
 //    ActionButton *resetButton = new ActionButton("Reset game");
@@ -176,8 +181,11 @@ void GameView::mousePressEvent(QMouseEvent *event) {
     } else if (boardViewModel->getActivePawn()) {
         handleSelectingPointForActivePawnByMouse(event->pos());
     } else {
-        PawnField *pawn = board->getPawnAtMousePosition(event->pos());
-        selectPawn(pawn);
+        if(Board::sInstance->getTurnColor() == ScoreBoardManager::sInstance->GetEntry(NetworkManager::sInstance->GetMyPlayerId())->GetColor())
+        {
+            PawnField *pawn = board->getPawnAtMousePosition(event->pos());
+            selectPawn(pawn);
+        }
     }
 
     QGraphicsView::mousePressEvent(event);

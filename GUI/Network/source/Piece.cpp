@@ -24,12 +24,16 @@ void Piece::WriteForCRC( OutputMemoryBitStream& inStream )
 
 bool Piece::MoveToLocation(const Vector2& inDeltaLocation )
 {
-	bool finishedMove = false;
+    if(Board::sInstance->TryBlow(GetLocation() +  inDeltaLocation ))
+    {
+        SetDoesWantToDie(true);
+    }
+    else
+    {
+        SetLocation(GetLocation() +  inDeltaLocation );
+    }
 
-	SetLocation(GetLocation() +  inDeltaLocation );
-	finishedMove = true;finishedMove = true;
-	
-	return finishedMove;
+    return true;
 }
 
 void Piece::HandleDying()
